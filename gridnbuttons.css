@@ -1,0 +1,76 @@
+.block-base {
+	float: left;	
+}
+.block-button-vertical{
+	width: 52px;
+	min-width: 52px;
+	min-height: 50px;
+	position: relative;
+}
+
+.block-button-horizontal{
+	height: 52px;
+	min-width: 50px;
+	min-height: 50px;
+	width: 100%;
+	position: relative;
+}
+
+.myTable {
+	border: 1px solid rgb(72,170,230);
+}
+
+.mycell {
+	background: rgb(72,170,230);
+	border: none;
+	width: 49px;
+	height: 50px;	
+	text-align: center; 
+	vertical-align: middle;			
+}		
+
+.button {
+	border: none;
+	width: 50px;
+	height: 50px;	
+	font-size: 130%;
+	color: white;
+	float: left;	
+}
+
+.button-fade {
+	opacity: 1;
+	transition: all 2.0s ease;
+	cursor: pointer;
+}
+
+.button-fade:hover {
+	opacity: 0.5;
+}
+
+.button-add{
+	margin: 2px 0px 0px 2px;
+	background: rgb(243,165,0);	
+}
+
+.button-add-col {
+	margin-top: 3px;
+}
+
+.button-add-row {
+	margin-left: 53px;
+}
+
+.button-remove {
+	background: rgb(178,0,0);
+	position: absolute;
+}		
+
+.button-remove-col {
+	margin-bottom: 2px;
+	margin-left: 53px;
+}		
+
+.button-remove-row {
+	margin-right: 2px;
+}		

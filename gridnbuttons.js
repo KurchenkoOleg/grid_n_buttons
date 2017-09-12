@@ -1,352 +1,189 @@
 'use strict';
-const INIT_ROWS = 4;
-const INIT_COLS = 4;
-const ID_COMPO_ROOT = 'MyCompoRoot';
-const ID_COMPO_TABLE = 'MyCompoTable';
-const ID_COMPO_ADD_COL_BTN = 'MyCompoDeleteRowBtn';
-const ID_COMPO_DEL_COL_BTN = 'MyCompoDeleteColBtn';
 
-function initMyComponents(classNameOfParentElement)
+
+function MyComponent(options)
 {
-	var parentElements = document.getElementsByClassName(classNameOfParentElement);
-	
-	for (let id = 0; id < parentElements.length; id++) {
-		let element = parentElements[id];
+	var elem = options.elem;
+	var colNumber = -1;
+	var rowNumber = -1;
+	var showDelRowButton = false;
+	var showDelColButton = false;
 
-		let baseDivObj = document.createElement('div');
-		baseDivObj.classList.add("block-base");
-		baseDivObj.id = ID_COMPO_ROOT + id;
-		element.appendChild(baseDivObj);	
-
-		let topDivObj = document.createElement('div');
-		topDivObj.classList.add("block-base");
-		topDivObj.classList.add("block-button-horizontal");
-		baseDivObj.appendChild(topDivObj);	
-		
-		let leftDivObj = document.createElement('div');
-		leftDivObj.classList.add("block-base");
-		leftDivObj.classList.add("block-button-vertical");
-		baseDivObj.appendChild(leftDivObj);	
-
-		let centerDivObj = document.createElement('div');
-		centerDivObj.classList.add("block-base");		
-		baseDivObj.appendChild(centerDivObj);	
-		
-		let rightDivObj = document.createElement('div');
-		rightDivObj.classList.add("block-base");
-		rightDivObj.classList.add("block-button-vertical");
-		baseDivObj.appendChild(rightDivObj);	
-		
-		let bottomDivObj = document.createElement('div');
-		bottomDivObj.classList.add("block-base");
-		bottomDivObj.classList.add("block-button-horizontal");
-		baseDivObj.appendChild(bottomDivObj);		
-
-		let btnObj = document.createElement('button');
-		topDivObj.appendChild(btnObj);			
-		btnObj.id = ID_COMPO_DEL_COL_BTN + id;
-		btnObj.hidden = true;
-		btnObj.innerHTML = '-';
-		btnObj.classList.add("button");
-		btnObj.classList.add("button-remove");
-		btnObj.classList.add("button-remove-col");
-		btnObj.addEventListener("click", function () {deleteCol(this);});
-		btnObj.addEventListener("mouseover", myButtonOnMouseOver);
-		btnObj.addEventListener("mouseout", myButtonOnMouseOut);		
-
-		btnObj = document.createElement('button');
-		bottomDivObj.appendChild(btnObj);
-		btnObj.innerHTML = '+';
-		btnObj.classList.add("button");
-		btnObj.classList.add("button-fade");
-		btnObj.classList.add("button-add");
-		btnObj.classList.add("button-add-row");
-		btnObj.addEventListener("click", function () {addRow(this);});		
-
-		btnObj = document.createElement('button');
-		leftDivObj.appendChild(btnObj);	
-		btnObj.id = ID_COMPO_ADD_COL_BTN + id;
-		btnObj.hidden = true;
-		btnObj.innerHTML = '-';
-		btnObj.classList.add("button");
-		btnObj.classList.add("button-remove");
-		btnObj.classList.add("button-remove-row");
-		btnObj.addEventListener("click", function () {deleteRow(this);});
-		btnObj.addEventListener("mouseover", myButtonOnMouseOver);
-		btnObj.addEventListener("mouseout", myButtonOnMouseOut);		
-
-		btnObj = document.createElement('button');
-		rightDivObj.appendChild(btnObj);		
-		btnObj.innerHTML = '+';
-		btnObj.classList.add("button");
-		btnObj.classList.add("button-fade");
-		btnObj.classList.add("button-add");
-		btnObj.classList.add("button-add-col");
-		btnObj.addEventListener("click", function () {addCol(this);});		
-		
-		let tblObj = document.createElement('table');
-		tblObj.id = ID_COMPO_TABLE + id;
-		tblObj.classList.add("myTable");
-		centerDivObj.appendChild(tblObj);	
+	let	tblObj = elem.querySelector('.myCompo__table');
 		tblObj.addEventListener("mouseover", myTableOnMouseOver);
 		tblObj.addEventListener("mouseout", myTableOnMouseOut);
-		tblObj.addEventListener("mouseleave", myTableOnMouseLeave);
+		tblObj.addEventListener("mouseleave", hideButtons);
 	
-		let tblBodyObj = document.createElement('tbody');
-		tblObj.appendChild(tblBodyObj);
+	let	btnAddRowObj = elem.querySelector('.myCompo__btn-add-row');
+		btnAddRowObj.addEventListener("click", addRow);		
+	
+	let	btnAddColObj = elem.querySelector('.myCompo__btn-add-col');
+		btnAddColObj.addEventListener("click", addCol);	
+
+	let btnDelColObj = elem.querySelector('.myCompo__btn-remove-col');
+		btnDelColObj.addEventListener("click", deleteCol);
+		btnDelColObj.addEventListener("mouseover", function () {showDelColButton = true;});
+		btnDelColObj.addEventListener("mouseout", hideButtons);
+	
+	let	btnDelRowObj = elem.querySelector('.myCompo__btn-remove-row');
+		btnDelRowObj.addEventListener("click", deleteRow);
+		btnDelRowObj.addEventListener("mouseover", function () {showDelRowButton = true;});
+		btnDelRowObj.addEventListener("mouseout", hideButtons);
+
 		
-		for (let i=0; i<INIT_ROWS; i++) {
-			let newRow = tblBodyObj.insertRow(-1);
-			for (let j=0; j<INIT_COLS; j++) {
-				let newCell = newRow.insertCell(j);
-				newCell.innerHTML = (tblBodyObj.rows.length - 1) + ' : ' + j;
-				newCell.classList.add("mycell");
-			}
-		}	
-	}
-}
+	setPositionForButtonAdd();		
+		
 
-function getComponentId(element)
-{	
-	var rootObj = null;
-	var parent = element.parentElement;
-	while(parent != null)
-	{
-		if (parent.id.startsWith(ID_COMPO_ROOT))
-		{
-			return parent.id.replace(ID_COMPO_ROOT, '');
-		}
-		else
-		{
-			parent = parent.parentElement;			
-		}
-	}
-	return '';	
-}
-
-function getElement(elementId, anyCompoElement)
-{	
-	var id = getComponentId(anyCompoElement);
-	if (id != '')
-	{			
-		return document.getElementById(elementId + id);
-	}
-	else
-	{
-		return null;
-	}
-}
-
-function addRow(btnObj)
-{	
-	var tblObj = getElement(ID_COMPO_TABLE, btnObj);
-	if (tblObj != null)
+	function addRow()
 	{
 		let tblBodyObj = tblObj.tBodies[0];	
 		let newRow = tblBodyObj.insertRow(tblBodyObj.rows.length);
-	
+		
 		for (let cell of tblBodyObj.rows[0].cells){
 			let newCell = newRow.insertCell(cell.cellIndex);			
 			newCell.innerHTML = (tblBodyObj.rows.length - 1) + ' : ' + newCell.cellIndex;
-			newCell.classList.add("myTable");
-			newCell.classList.add("mycell");
+			newCell.classList.add("myCompo__cell");				
 		}
-	}
-} 
+		setPositionForButtonAdd();					
+	} 
 
-function deleteRow(btnObj)
-{
-	var tblObj = getElement(ID_COMPO_TABLE, btnObj);
-	if (tblObj != null)
+	function deleteRow()
 	{
-		let index = btnObj.getAttribute('rowNo');
-				
 		let tblBodyObj = tblObj.tBodies[0];
-		if ((tblBodyObj.rows.length > 1) && (index >= 0) && (index < tblBodyObj.rows.length))
+		if ((tblBodyObj.rows.length > 1) && (rowNumber >= 0) && (rowNumber < tblBodyObj.rows.length))
 		{			
-			tblBodyObj.deleteRow(index);
+			tblBodyObj.deleteRow(rowNumber);
+			setPositionForButtonAdd();				
 		}
-		
-		if ((tblBodyObj.rows.length == 1) || (index >= tblBodyObj.rows.length))
+			
+		if ((tblBodyObj.rows.length == 1) || (rowNumber >= tblBodyObj.rows.length))
 		{
-			btnObj.removeAttribute('showButton');	
-			btnObj.classList.remove('button-fade');	
-			hideDeleteRowBtn(btnObj);
+			showDelRowButton = false;
+			hideDeleteRowBtn();
 		}		
-	}	
-} 
-	  
-function addCol(btnObj)
-{
-	var tblObj = getElement(ID_COMPO_TABLE, btnObj);
-	if (tblObj != null)
+	} 
+		  
+	function addCol()
 	{
 		let tblBodyObj = tblObj.tBodies[0];
-		
+			
 		for (let row of tblBodyObj.rows) {
 			var newCell = row.insertCell(-1);
 			newCell.innerHTML = row.rowIndex + ' : ' + (row.cells.length - 1);
-			newCell.classList.add("myTable");
-			newCell.classList.add("mycell");
+			newCell.classList.add("myCompo__cell");
+			setPositionForButtonAdd();				
 		}
-	}	
-}  
+	}  
 
-function deleteCol(btnObj)
-{
-	var tblObj = getElement(ID_COMPO_TABLE, btnObj);
-	if (tblObj != null)
+	function deleteCol()
 	{
 		let tblBodyObj = tblObj.tBodies[0];
-		let index = btnObj.getAttribute('colNo');
-			
+				
 		for (let row of tblBodyObj.rows) {
-		if ((row.cells.length > 1) && (index >= 0) && (index < row.cells.length))
-			row.deleteCell(index);
+		if ((row.cells.length > 1) && (colNumber >= 0) && (colNumber < row.cells.length))
+			row.deleteCell(colNumber);
+			setPositionForButtonAdd();				
 		}
-		
-		if ((tblBodyObj.rows[0].cells.length == 1) || (index >= tblBodyObj.rows[0].cells.length))
+			
+		if ((tblBodyObj.rows[0].cells.length == 1) || (colNumber >= tblBodyObj.rows[0].cells.length))
 		{
-			btnObj.removeAttribute('showButton');	
-			btnObj.classList.remove('button-fade');	
-			hideDeleteColBtn(btnObj);
+			showDelColButton = false;
+			hideDeleteColBtn();
 		}		
-	}	
-}	  
+	}	  
 
-function showDeleteRowBtn(cell){
-	var btnObj = getElement(ID_COMPO_ADD_COL_BTN, cell);
-	if (btnObj != null)
-	{	
-		btnObj.style.top = cell.offsetTop;
-		if (btnObj.getAttribute('rowNo') != cell.parentElement.rowIndex)
-		{
-			btnObj.setAttribute('rowNo', cell.parentElement.rowIndex);
-			btnObj.classList.remove('button-fade');	
-		}
-		
-		btnObj.setAttribute('showButton', '1');	
-		btnObj.hidden = false;
+	function setPositionForButtonAdd(){
+		btnAddRowObj.style.top = tblObj.offsetTop + tblObj.offsetHeight;
+		btnAddRowObj.style.left = tblObj.offsetLeft;
+	
+		btnAddColObj.style.top = tblObj.offsetTop;
+		btnAddColObj.style.left = tblObj.offsetLeft + tblObj.offsetWidth;		
 	}
-}
+	
+	function showDeleteRowBtn(cell){
+		btnDelRowObj.style.top = cell.offsetParent.offsetTop + cell.offsetTop;
+		if (rowNumber != cell.parentElement.rowIndex)
+		{
+			rowNumber = cell.parentElement.rowIndex;
+		}
+			
+		showDelRowButton = true;			
+		btnDelRowObj.hidden = false;
+	}
 
-function hideDeleteRowBtn(cell){
-	var btnObj = getElement(ID_COMPO_ADD_COL_BTN, cell);
-	if (btnObj != null)
-	{	
-		if (!btnObj.getAttribute('showButton'))
+	function hideDeleteRowBtn(){
+		if (!showDelRowButton)
 		{			
-			btnObj.left = 0;
-			btnObj.setAttribute('colNo', '');	
-			btnObj.hidden = true;
+			btnDelRowObj.left = 0;
+			rowNumber = -1;	
+			btnDelRowObj.hidden = true;
 		}
 	}
-}
 
-function showDeleteColBtn(cell){
-	var btnObj = getElement(ID_COMPO_DEL_COL_BTN, cell);
-	if (btnObj != null)
-	{	
-		let tblObj = getElement(ID_COMPO_TABLE, btnObj);
-		if (tblObj != null)
+	function showDeleteColBtn(cell){
+		btnDelColObj.style.left = cell.offsetParent.offsetLeft + cell.offsetLeft;
+		if (colNumber != cell.cellIndex)
 		{
-			btnObj.style.left = cell.offsetLeft;
-			if (btnObj.getAttribute('colNo') != cell.cellIndex)
-			{
-				btnObj.setAttribute('colNo', cell.cellIndex);
-				btnObj.classList.remove('button-fade');	
-			}
-			
-			btnObj.setAttribute('showButton', '1');	
-			btnObj.hidden = false;
+			colNumber = cell.cellIndex;
 		}
+				
+		showDelColButton = true;	
+		btnDelColObj.hidden = false;
 	}
-}
 
-function hideDeleteColBtn(cell){
-	var btnObj = getElement(ID_COMPO_DEL_COL_BTN, cell);
-	if (btnObj != null)
-	{
-		if (!btnObj.hasAttribute('showButton'))
+	function hideDeleteColBtn(){
+		if (!showDelColButton)
 		{
-			btnObj.top = 0;
-			btnObj.setAttribute('rowNo', '');
-			btnObj.hidden = true;
+			btnDelColObj.top = 0;
+			colNumber = -1;
+			btnDelColObj.hidden = true;
 		}
+	}		
+
+	function hideButtons() {
+		showDelColButton = false;	
+		setTimeout(function() {
+			hideDeleteColBtn();      
+		}, 100);
+
+		showDelRowButton = false;	
+		setTimeout(function() {
+			hideDeleteRowBtn();
+		}, 100);
 	}
-}		
+	 
+	function myTableOnMouseOver(event) {
+		var cell = event.target;
+		var colIndex = cell.cellIndex;
+		var rowIndex = cell.parentElement.rowIndex;
 
-function hideButtons(element) {
-	let btnObj = getElement(ID_COMPO_DEL_COL_BTN, element);
-	if (btnObj != null)
-	{
-		btnObj.removeAttribute('showButton');	
-	}
-	
-	btnObj = getElement(ID_COMPO_ADD_COL_BTN, element);
-	if (btnObj != null)
-	{
-		btnObj.removeAttribute('showButton');	
-	}	
-	
-	hideButtonsDelayed(element);	
-}
-
-function hideButtonsDelayed(element) {
-	setTimeout(function() {
-		hideDeleteColBtn(element);      
-	}, 100);
-	setTimeout(function() {
-		hideDeleteRowBtn(element);
-	}, 100);
-}
- 
-function myTableOnMouseOver(event) {
-	var cell = event.target;
-	var colIndex = cell.cellIndex;
-    var rowIndex = cell.parentElement.rowIndex;
-
-	if ((colIndex != undefined) && (rowIndex != undefined))
-	{	
-		if (cell.classList.contains('mycell'))
+		if ((colIndex != undefined) && (rowIndex != undefined))
 		{	
-			let tblBodyObj = cell.parentElement.parentElement.parentElement.tBodies[0];
-			if ((tblBodyObj.rows[0].cells.length > 1) && (colIndex >= 0) && (colIndex < tblBodyObj.rows[0].cells.length))
-			{
-				showDeleteColBtn(cell);
+			if (cell.classList.contains('myCompo__cell'))
+			{	
+				let tblBodyObj = cell.parentElement.parentElement.parentElement.tBodies[0];
+				if ((tblBodyObj.rows[0].cells.length > 1) && (colIndex >= 0) && (colIndex < tblBodyObj.rows[0].cells.length))
+				{
+					showDeleteColBtn(cell);
+				}
+				
+				if ((tblBodyObj.rows.length > 1) && (rowIndex >= 0) && (rowIndex < tblBodyObj.rows.length))
+				{
+					showDeleteRowBtn(cell);
+				}
 			}
-			
-			if ((tblBodyObj.rows.length > 1) && (rowIndex >= 0) && (rowIndex < tblBodyObj.rows.length))
-			{
-				showDeleteRowBtn(cell);
-			}
-		}
-	}	
-}
-
-function myTableOnMouseOut(event) {
-	var cell = event.target;
-	var colIndex = cell.cellIndex;
-    var rowIndex = cell.parentElement.rowIndex;
-
-	if ((colIndex != undefined) && (rowIndex != undefined))
-	{	
-		hideButtons(event.target);
+		}	
 	}
-}
-	
-function myTableOnMouseLeave(event) {
-	hideButtons(event.target);
+
+	function myTableOnMouseOut(event) {
+		var cell = event.target;
+		var colIndex = cell.cellIndex;
+		var rowIndex = cell.parentElement.rowIndex;
+
+		if ((colIndex != undefined) && (rowIndex != undefined))
+		{	
+			hideButtons();
+		}
+	}		
 }
 
-function myButtonOnMouseOver(event) {
-	var btnObj = event.target;
-	btnObj.classList.add('button-fade');
-	btnObj.setAttribute('showButton', '1');	
-}
-
-function myButtonOnMouseOut(event) {
-	var btnObj = event.target;
-	btnObj.removeAttribute('showButton');	
-	hideButtonsDelayed(event.target);	
-} 

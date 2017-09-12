@@ -1,11 +1,34 @@
 <html>
 	<head>
-		<title>grid'n'buttons test</title>
+		<title>grid'n'buttons test v02 (Template+Object)</title>
 		<meta charset="utf8">
 		<link href="gridnbuttons.css" rel="stylesheet">
 		<script src="gridnbuttons.js"></script>
 	</head>
-	<body onload="initMyComponents('myComponent');">
-		<div class="myComponent"></div>
+
+<template>
+	<button class="myCompo__btn myCompo__btn-fade myCompo__btn-remove myCompo__btn-remove-col" hidden="">-</button>
+	<button class="myCompo__btn myCompo__btn-fade myCompo__btn-remove myCompo__btn-remove-row" hidden="">-</button>
+	<table class="myCompo__table"><tbody><tr><td class="myCompo__cell">0 : 0</td><td class="myCompo__cell">0 : 1</td><td class="myCompo__cell">0 : 2</td><td class="myCompo__cell">0 : 3</td></tr><tr><td class="myCompo__cell">1 : 0</td><td class="myCompo__cell">1 : 1</td><td class="myCompo__cell">1 : 2</td><td class="myCompo__cell">1 : 3</td></tr><tr><td class="myCompo__cell">2 : 0</td><td class="myCompo__cell">2 : 1</td><td class="myCompo__cell">2 : 2</td><td class="myCompo__cell">2 : 3</td></tr><tr><td class="myCompo__cell">3 : 0</td><td class="myCompo__cell">3 : 1</td><td class="myCompo__cell">3 : 2</td><td class="myCompo__cell">3 : 3</td></tr></tbody></table>
+	<button class="myCompo__btn myCompo__btn-fade myCompo__btn-add myCompo__btn-add-col">+</button>
+	<button class="myCompo__btn myCompo__btn-fade myCompo__btn-add myCompo__btn-add-row">+</button>
+</template>
+
+
+<script>
+  function initMyComponents() {
+    var content = document.querySelector('template').content;	
+	for (let locElem of document.querySelectorAll('.myCompo')){
+		locElem.appendChild(content.cloneNode(true));
+	
+		let myCompo = new MyComponent({
+			elem: locElem
+			});		
+		}
+  }
+</script>
+
+	<body onload="initMyComponents();">
+		<div class="myCompo"></div>
 	</body>
 </html>

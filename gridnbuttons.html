@@ -17,11 +17,11 @@
 
 <script>
   function initMyComponents() {
-    var content = document.querySelector('template').content;	
+    let content = document.querySelector('template').content;
 	for (let locElem of document.querySelectorAll('.myCompo')){
 		locElem.appendChild(content.cloneNode(true));
 	
-		let myCompo = new MyComponent({
+		new MyComponent({
 			elem: locElem
 			});		
 		}
